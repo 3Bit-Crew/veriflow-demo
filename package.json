@@ -1,0 +1,10 @@
+{
+  "name": "veriflow-demo-shop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A tiny shop checkout used to demo Veriflow, pay-on-proof escrow.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/checkout.test.js"
+  }
+}

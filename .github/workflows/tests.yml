@@ -1,0 +1,36 @@
+# Runs each of the buyer's tests as its own job, so every test is a separate GitHub check.
+# Veriflow reads these checks: "2 of 6 check(s) failed: Rounds to cents, Shipping not discounted".
+# The names below must match the test names in tests/checkout.test.js exactly.
+name: Tests
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.test }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - Total without a coupon
+          - SAVE10 takes 10% off
+          - FREESHIP makes shipping free
+          - Unknown coupon is rejected
+          - Shipping not discounted
+          - Rounds to cents
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run the test
+        env:
+          TEST_NAME: ${{ matrix.test }}
+        run: |
+          node --test --test-reporter=tap --test-name-pattern="^${TEST_NAME}\$" tests/checkout.test.js | tee result.tap
+          # The named test itself must have run and passed. If no test matches the name
+          # (renamed or deleted), Node still reports "ok" for the file, so check the name.
+          grep -qE "^[[:space:]]*ok [0-9]+ - ${TEST_NAME}\$" result.tap
